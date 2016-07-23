@@ -22,10 +22,7 @@ def thisfunc(n):
     var = (n**3) + (n * 2) - 1
     return var
 
-#normal pdf, needs pi and exp constants from 'math' pack
-def normalpdf(x, m, std):
-    var = (1 / (std * (2 * 3.141592654) ** .5)) * 2.718281828 ** (-.5 * (((x - m) / std) ** 2))
-    return var
+print(zero(thisfunc, 0, 10))
 
 
 def areaundercurve(func, x1, x2, stepper):
@@ -38,12 +35,20 @@ def areaundercurve(func, x1, x2, stepper):
         x1 += stepper
 
 
-def normpdf(x):
-    var = normalpdf(x, 5, 5)
+#normal pdf, needs pi and exp constants from 'math' pack
+def normalpdf(x, m, std):
+    var = (1 / (std * (2 * 3.141592654) ** .5)) * 2.718281828 ** (-.5 * (((x - m) / std) ** 2))
     return var
 
+def normcdf(x1, x2, m, std):
+    normpdf = lambda x: normalpdf(x, m, std)
+    var = areaundercurve(normpdf, x1, x2, .0005)
+    return var
+
+print(normcdf(5, 10, 5, 5))
+
     
-areaundercurve(normpdf, 1.0, 6.0, .0005)
+
 
 
 
