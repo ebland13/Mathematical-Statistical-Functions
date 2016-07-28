@@ -38,7 +38,6 @@ def areaundercurve(func, x1, x2, stepper):
         x1 += stepper
 
 
-#normal pdf, needs pi and exp constants from 'math' pack
 def normalpdf(x, m, std):
     var = (1 / (std * (2 * math.pi) ** .5)) * math.exp(-.5 * (((x - m) / std) ** 2))
     return var
