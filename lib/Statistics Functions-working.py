@@ -2,7 +2,7 @@ import math
 
 #Code by Eric Bland
 
-#return the slope & intercept of the best fit linear line
+#return the slope & intercept of the best fit linear equation
 def LinReg(X, Y):
     multsum = sum(list(map(lambda x, y: x * y, X, Y)))
     Xsqrsum = sum(list(map(lambda x: x ** 2, X)))
@@ -18,14 +18,13 @@ print(LinReg((1, 5, 20), (60, 200, 800)))
 
 
 def ANOVA(*args):
-    #initialize
-    listofmeans, listofn, listofvars, alldatapoints, N = [], [], [], [], 0
+    #set variables
+    listofmeans, listofn, listofvars, alldatapoints, N, var = [], [], [], [], 0, 0
 
     #Get mean, n, and variance for each sample. Then calc N and grand mean
     for sample in args:
         mean = sum(sample) / len(sample)   #calc mean
         n = len(sample)   #calc number of data points in samp
-        var = 0
         for val in sample:   #calc variances
             var += (val - mean) ** 2
         var /= (n - 1)
