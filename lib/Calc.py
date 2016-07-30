@@ -21,13 +21,6 @@ def zero(func, x1, x2, dec = 1):
         zero(func, x1, x2, dec)
 
 
-def thisfunc(x):
-    var = (x**2) + (20 * x) - 5
-    return var
-
-zero(thisfunc, 0, 10)
-
-
 def areaundercurve(func, x1, x2, stepper):
     area = 0
     while(True):
@@ -38,16 +31,6 @@ def areaundercurve(func, x1, x2, stepper):
         x1 += stepper
 
 
-def normalpdf(x, m, std):
-    var = (1 / (std * (2 * math.pi) ** .5)) * math.exp(-.5 * (((x - m) / std) ** 2))
-    return var
-
-def normcdf(x1, x2, m, std):
-    normpdf = lambda x: normalpdf(x, m, std)
-    var = areaundercurve(normpdf, x1, x2, .0005)
-    return var
-
-normcdf(5, 10, 5, 5)
 
 
 
