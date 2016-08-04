@@ -20,8 +20,8 @@ def zero(func, x1, x2, dec = 1):
         dec += 1
         zero(func, x1, x2, dec)
 
-
-def areaundercurve(func, x1, x2, stepper):
+#area under curve using Reinmann Trapezoid formula
+def Tareaundercurve(func, x1, x2, stepper):
     area = 0
     while(True):
         if round(x1, 4) == x2:
@@ -30,7 +30,25 @@ def areaundercurve(func, x1, x2, stepper):
         area += ((func(x1) + func(x1 + stepper)) / 2) * stepper
         x1 += stepper
 
-
+#area under curve using Simpson's formula
+def Sareaundercurve(func, a, b):
+    n = 500
+    h = (b - a) / n
+    iteration, x, area = 1, a + h, func(a)
+    while(True):
+        if  round(x, 8) == b or iteration == n: 
+            area += func(b)
+            area *= (h / 3)
+            break
+        if iteration % 2 == 0:
+            area += 2 * func(x)
+            x += h
+            iteration += 1
+        else:
+            area += 4 * func(x)
+            x += h
+            iteration += 1
+    return area
 
 
 

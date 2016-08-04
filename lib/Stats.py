@@ -14,6 +14,7 @@ def normcdf(x1, x2, m, std):
     return var
 
 
+
 #return the slope & intercept of the best fit linear equation
 def LinReg(X, Y):
     multsum = sum(list(map(lambda x, y: x * y, X, Y)))
@@ -61,5 +62,3 @@ def ANOVA(*args):
     F = MSb / MSw   #F-statistic
 
     return F, MSb, SSb, dfN, MSw, SSw, dfD, grndmean
-
-#print(ANOVA((1, 3, 9, 29), (22, 34, 9, 88), (23, 44, 55), (8, 99, 22, 10, 22, 30, 44)))
