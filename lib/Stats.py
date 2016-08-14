@@ -1,5 +1,5 @@
 import math
-import Calc
+from Calc import *
 
 #Code by Eric Bland
 
@@ -8,9 +8,9 @@ def normalpdf(x, m, std):
     var = (1 / (std * (2 * math.pi) ** .5)) * math.exp(-.5 * (((x - m) / std) ** 2))
     return var
 
-def normcdf(x1, x2, m, std):
+def normalcdf(x1, x2, m, std):
     normpdf = lambda x: normalpdf(x, m, std)
-    var = areaundercurve(normpdf, x1, x2, .0005)
+    var = Sareaundercurve(normpdf, x1, x2)
     return var
 
 
