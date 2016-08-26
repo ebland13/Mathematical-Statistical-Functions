@@ -1,4 +1,6 @@
 from Config import *
+import math
+
 
 #Written by Eric Bland
 class CalcApp:
@@ -31,11 +33,20 @@ class CalcApp:
               font=('calibri',10,'bold')).place(x = 50, y = 10)
         ttk.Label(self.canvas_norm, text = 'Mean: ').place(x = 60, y=50)
         ttk.Label(self.canvas_norm, text = 'Std Dev: ').place(x = 200, y=50)
+        ttk.Label(self.canvas_norm, text = 'Area Lbound: ').place(x = 20, y=150)
+        ttk.Label(self.canvas_norm, text = 'Area UBound: ').place(x = 170, y=150)
         self.entry_mean = ttk.Entry(self.canvas_norm, width = 10)
         self.entry_mean.place(x = 100, y = 50)
         self.entry_std = ttk.Entry(self.canvas_norm, width = 10)
         self.entry_std.place(x = 250, y = 50)
-        ttk.Radiobutton(self.canvas_norm, text = 'NormalCDF').place(x = 100, y = 100)
+        self.entry_area_a = ttk.Entry(self.canvas_norm, width = 10)
+        self.entry_area_a.place(x = 100, y = 150)
+        self.entry_area_b = ttk.Entry(self.canvas_norm, width = 10)
+        self.entry_area_b.place(x = 250, y = 150)
+        self.radio1 = ttk.Radiobutton(self.canvas_norm, text = 'NormalCDF')
+        self.radio1.place(x = 100, y = 100)
+        self.radio2 = ttk.Radiobutton(self.canvas_norm, text = 'NormalPDF')
+        self.radio2.place(x = 100, y = 120)
 
     def click_calculate(self):
         datastr = self.textbox1.get(1.0, END)
@@ -76,11 +87,12 @@ class CalcApp:
         std = float(self.entry_std.get())
         normalfunc = lambda x: normalpdf(x, mean, std)
         normalcurve = GraphFunc(normalfunc, mean - 3 * std, mean + 3 * std,
-                                -2 * normalfunc(mean), 2 * normalfunc(mean))
+                                -2 * normalfunc(mean), 2 * normalfunc(mean),
+                                self.entry_area_a.get(), self.entry_area_b.get())
         
- 
+ #------------------------------------------------------------------------------------------------------
 class GraphFunc:
-    def __init__(self, func, x_Lbound, x_Ubound, y_Lbound, y_Ubound):
+    def __init__(self, func, x_Lbound, x_Ubound, y_Lbound, y_Ubound, area_a, area_b):
         self.top = Toplevel()
         self.top.resizable(False, False)
         self.func = func
@@ -88,6 +100,8 @@ class GraphFunc:
         self.xU = x_Ubound
         self.yL = y_Lbound
         self.yU = y_Ubound
+        self.area_a = area_a
+        self.area_b = area_b
         self.height, self.width = 500, 600
         self.draw_canvas()
              
@@ -101,7 +115,7 @@ class GraphFunc:
         self.window_open = ttk.Button(self.canvas, text='Window', command=self.draw_window_frame)
         self.window_open.place(x=self.width - 100, y=self.height - 30)
         
-        iteration, n = 0, 100
+        iteration, n = 0, 400
         a, b = float(self.xL), float(self.xU)
         c, d = float(self.yL), float(self.yU)
         step = (b - a) / n
@@ -112,35 +126,48 @@ class GraphFunc:
         scaleY, scaleX = h / (d - c), w / (b - a)
         
         #draw x & y axes
-        x_axis, y_axis = w - (b * scaleX), (d * scaleY)
-        self.canvas.create_line(x_axis,0,x_axis,h, fill='black')
-        self.canvas.create_line(0,y_axis,w,y_axis,fill='black')
+        x_axis, y_axis = (d * scaleY), w - (b * scaleX)
+        self.canvas.create_line(y_axis,0,y_axis,h, fill='black')
+        self.canvas.create_line(0,x_axis,w,x_axis,fill='black')
 
-        #draw curve
         while(True):
-            if iteration == 100 or round(x2,8) == b: break
+            if iteration == n or round(x2,8) == b: break
             x1 += step
             x2 += step
             y1, y2 = -1 * self.func(x1), -1 * self.func(x2)
-            self.canvas.create_line(x1 * scaleX + x_axis,y1 * scaleY + y_axis,x2 * scaleX + x_axis,
-                               y2 * scaleY + y_axis,fill='black',width=2)
+            
+            #draw area (if inputted)
+            if self.area_a != "" and self.area_b != "" and self.area_a != self.area_b:
+                if x1 > float(self.area_a) and x1 <= float(self.area_b): 
+                    self.canvas.create_line(x1 * scaleX + y_axis, x_axis,
+                                               x1 * scaleX + y_axis, y1 * scaleY + x_axis + 1
+                                               , fill='grey', width=2)
+            #draw curve
+            self.canvas.create_line(x1 * scaleX + y_axis,y1 * scaleY + x_axis,x2 * scaleX + y_axis,
+                               y2 * scaleY + x_axis,fill='black',width=2)
             iteration += 1
 
         #draw unit sublines
-        subline_len, xpos, ypos = 5, -x_axis + scaleX * unitX, -y_axis + scaleY * unitY
+        subline_len, xpos, ypos = 5, y_axis + (math.floor(a) * scaleX * unitX), x_axis - (math.ceil(d) * scaleY * unitX)
         while(True):
             xpos += scaleX * unitX
             if xpos > w: break
-            self.canvas.create_line(xpos, y_axis, xpos, y_axis - subline_len)
+            if xpos == y_axis: continue
+            self.canvas.create_line(xpos, x_axis, xpos, x_axis - subline_len)
         while(True):
             ypos += scaleY * unitY
             if ypos > h: break
-            self.canvas.create_line(x_axis, ypos, x_axis + subline_len, ypos)
-        
+            if ypos == x_axis: continue
+            self.canvas.create_line(y_axis, ypos, y_axis + subline_len, ypos)
+       
+        if self.area_a != "" and self.area_b != "" and self.area_a != self.area_b:
+                area = round(Sareaundercurve(self.func, float(self.area_a), float(self.area_b)), 5)
+                Label(self.canvas, text = 'Area: ' + str(area), font = ('calibri', 8)).place(x = self.width - 250, y = self.height - 20)
+
         Label(self.canvas, text = 'x: [' + str(round(a,4)) + ', ' + str(round(b,4)) + '], units: ' + str(unitX),
-              font = ('calibri',8)).place(x = self.width - 250, y = self.height - 50)
+              font = ('calibri',8)).place(x = self.width - 250, y = self.height - 60)
         Label(self.canvas, text = 'y: [' + str(round(c,4)) + ', ' + str(round(d,4)) + '], units: ' + str(unitY),
-              font = ('calibri',8)).place(x = self.width - 250, y = self.height - 30)
+              font = ('calibri',8)).place(x = self.width - 250, y = self.height - 40)
 
 
     def draw_window_frame(self):
@@ -163,16 +190,16 @@ class GraphFunc:
               font=('calibri',10,'bold')).grid(row = 2, column = 0, sticky = 'ne')
         self.x_Lbound = ttk.Entry(self.frame_window, width = 10)
         self.x_Lbound.grid(row = 4, column = 0)
-        self.x_Lbound.insert(END,self.xL)
+        self.x_Lbound.insert(END,round(self.xL,5))
         self.x_Ubound = ttk.Entry(self.frame_window, width = 10)
         self.x_Ubound.grid(row = 4, column = 2, sticky='ne')
-        self.x_Ubound.insert(END,self.xU)
+        self.x_Ubound.insert(END,round(self.xU,5))
         self.y_Lbound = ttk.Entry(self.frame_window, width = 10)
         self.y_Lbound.grid(row = 7, column = 0)
-        self.y_Lbound.insert(END, self.yL)
+        self.y_Lbound.insert(END, round(self.yL,5))
         self.y_Ubound = ttk.Entry(self.frame_window, width = 10)
         self.y_Ubound.grid(row = 7, column = 2, sticky='ne')
-        self.y_Ubound.insert(END, self.yU)
+        self.y_Ubound.insert(END, round(self.yU,5))
     
 
     def recalc_canvas(self):
