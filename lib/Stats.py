@@ -1,5 +1,5 @@
 import math
-from Calc import *
+from lib import *
 
 #Code by Eric Bland
 
