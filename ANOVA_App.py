@@ -1,4 +1,6 @@
-from Config import *
+from lib import *
+from tkinter import *
+from tkinter import ttk
 import math
 
 
@@ -35,6 +37,8 @@ class CalcApp:
         ttk.Label(self.canvas_norm, text = 'Std Dev: ').place(x = 200, y=50)
         ttk.Label(self.canvas_norm, text = 'Area Lbound: ').place(x = 20, y=150)
         ttk.Label(self.canvas_norm, text = 'Area UBound: ').place(x = 170, y=150)
+        self.label_norm = ttk.Label(self.canvas_norm, text='',font=('calibri',10),foreground='red')
+        self.label_norm.place(x=50,y=250)
         self.entry_mean = ttk.Entry(self.canvas_norm, width = 10)
         self.entry_mean.place(x = 100, y = 50)
         self.entry_std = ttk.Entry(self.canvas_norm, width = 10)
@@ -43,10 +47,10 @@ class CalcApp:
         self.entry_area_a.place(x = 100, y = 150)
         self.entry_area_b = ttk.Entry(self.canvas_norm, width = 10)
         self.entry_area_b.place(x = 250, y = 150)
-        self.radio1 = ttk.Radiobutton(self.canvas_norm, text = 'NormalCDF')
-        self.radio1.place(x = 100, y = 100)
-        self.radio2 = ttk.Radiobutton(self.canvas_norm, text = 'NormalPDF')
-        self.radio2.place(x = 100, y = 120)
+        #self.radio1 = ttk.Radiobutton(self.canvas_norm, text = 'NormalCDF')
+        #self.radio1.place(x = 100, y = 100)
+        #self.radio2 = ttk.Radiobutton(self.canvas_norm, text = 'NormalPDF')
+        #self.radio2.place(x = 100, y = 120)
 
     def click_calculate(self):
         datastr = self.textbox1.get(1.0, END)
@@ -83,12 +87,23 @@ class CalcApp:
 
 
     def click_graph(self):
-        mean = float(self.entry_mean.get())
-        std = float(self.entry_std.get())
-        normalfunc = lambda x: normalpdf(x, mean, std)
-        normalcurve = GraphFunc(normalfunc, mean - 3 * std, mean + 3 * std,
-                                -2 * normalfunc(mean), 2 * normalfunc(mean),
-                                self.entry_area_a.get(), self.entry_area_b.get())
+        if self.entry_mean.get() == '' or self.entry_std.get() == '':
+            self.label_norm.config(text='Input valid mean and standard deviation')
+        else:
+            try:
+                mean = float(self.entry_mean.get())
+                std = float(self.entry_std.get())
+                if std < 0:
+                    self.label_norm.config(text='Standard deviation must be positive')
+                else:
+                    normalfunc = lambda x: normalpdf(x, mean, std)
+                    normalcurve = GraphFunc(normalfunc, mean - 3 * std, mean + 3 * std,
+                                        -2 * normalfunc(mean), 2 * normalfunc(mean),
+                                        self.entry_area_a.get(), self.entry_area_b.get())
+                    self.label_norm.config(text='')
+            except ValueError:
+                self.label_norm.config(text='Mean and standard deviation must be rational numbers')
+            
         
  #------------------------------------------------------------------------------------------------------
 class GraphFunc:
@@ -190,30 +205,30 @@ class GraphFunc:
               font=('calibri',10,'bold')).grid(row = 2, column = 0, sticky = 'ne')
         self.x_Lbound = ttk.Entry(self.frame_window, width = 10)
         self.x_Lbound.grid(row = 4, column = 0)
-        self.x_Lbound.insert(END,round(self.xL,5))
+        self.x_Lbound.insert(END,str(round(self.xL,5)))
         self.x_Ubound = ttk.Entry(self.frame_window, width = 10)
         self.x_Ubound.grid(row = 4, column = 2, sticky='ne')
-        self.x_Ubound.insert(END,round(self.xU,5))
+        self.x_Ubound.insert(END,str(round(self.xU,5)))
         self.y_Lbound = ttk.Entry(self.frame_window, width = 10)
         self.y_Lbound.grid(row = 7, column = 0)
-        self.y_Lbound.insert(END, round(self.yL,5))
+        self.y_Lbound.insert(END, str(round(self.yL,5)))
         self.y_Ubound = ttk.Entry(self.frame_window, width = 10)
         self.y_Ubound.grid(row = 7, column = 2, sticky='ne')
-        self.y_Ubound.insert(END, round(self.yU,5))
+        self.y_Ubound.insert(END, str(round(self.yU,5)))
     
 
     def recalc_canvas(self):
-        self.xL = self.x_Lbound.get()
-        self.xU = self.x_Ubound.get()
-        self.yL = self.y_Lbound.get()
-        self.yU = self.y_Ubound.get()
-        if float(self.xL) == float(self.xU) or float(self.yL) == float(self.yU):
+        self.xL = float(self.x_Lbound.get())
+        self.xU = float(self.x_Ubound.get())
+        self.yL = float(self.y_Lbound.get())
+        self.yU = float(self.y_Ubound.get())
+        if self.xL == self.xU or self.yL == self.yU:
             Label(self.frame_window, text = "x-bounds or y-bounds are incorrect",
                   font = ('calibri', 10, 'bold')).grid(row = 9, column = 0, columnspan = 2)
         else:
-            if float(self.xL) > float(self.xU): 
+            if self.xL > self.xU: 
                 self.xL, self.xU = self.xU, self.xL
-            if float(self.yL) > float(self.yU):
+            if self.yL > self.yU:
                 self.yL, self.yU = self.yU, self.yL
             self.canvas.destroy()
             self.frame_window.destroy()
