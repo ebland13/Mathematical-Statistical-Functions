@@ -13,6 +13,10 @@ def normalcdf(x1, x2, m, std):
     var = Sareaundercurve(normpdf, x1, x2)
     return var
 
+#def Fpdf(x, dfN, dfD):
+
+
+
 
 
 #return the slope & intercept of the best fit linear equation
@@ -38,7 +42,7 @@ def ANOVA(*args):
     ###Calc mean, n, and variance for each sample. Then calc N and grand mean
     for sample in args:
         var = 0
-        n = float(len(sample))   #calc number of data points in samp
+        n = int(len(sample))   #calc number of data points in samp
         mean = sum(sample) / n   #calc mean
         for val in sample:   #calc variances
             var += ((val - mean) ** 2)

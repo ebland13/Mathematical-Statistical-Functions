@@ -2,22 +2,26 @@ import math
 
 #CODE BY ERIC BLAND
 
-#Uses Midpoint Theorem to find zeros of the function (with 50 iterations)
-def zero(func, x1, x2, dec = 1):
-    if dec == 100 or func(x2) == 0:
-        return x2
-    elif func(x1) == 0:
-        return x1
-    elif not ((func(x1) > 0 and func(x2) < 0) or (func(x1) < 0 and func(x2) > 0)):
-        return ''
-    elif (func(x1) + func(x2)) / 2 < 0:
-        x1 = (x1 + x2) / 2
-        dec += 1
-        zero(func, x1, x2, dec)
-    else:
-        x2 = (x1 + x2) / 2
-        dec += 1
-        zero(func, x1, x2, dec)
+#Uses Midpoint Theorem to find zeros of the function
+def zero(func, x1, x2, iteration = 1):
+    while(True):
+        if iteration == 1000 or func(x2) == 0:
+            break
+        elif not ((func(x1) > 0 and func(x2) < 0) or (func(x1) < 0 and func(x2) > 0)):
+            return None
+        elif func((x1 + x2) / 2) > 0:
+            if func(x2) > 0:
+                x2 = (x1 + x2) / 2
+            else:
+                x1 = (x1 + x2) / 2
+            iteration += 1
+        else:
+            if func(x2) > 0:
+                x1 = (x1 + x2) / 2
+            else:
+                x2 = (x1 + x2) / 2
+            iteration += 1
+    return x2
 
 #area under curve using Reinmann Trapezoid formula
 def Tareaundercurve(func, x1, x2):
@@ -36,7 +40,7 @@ def Sareaundercurve(func, a, b):
     h = (b - a) / n
     iteration, x, area = 1, a + h, func(a)
     while(True):
-        if  round(x, 8) == b or iteration == n: 
+        if  x == b or iteration == n: 
             area += func(b)
             area *= (h / 3)
             break
@@ -51,9 +55,10 @@ def Sareaundercurve(func, a, b):
     return area
 
 if __name__ == '__main__':
-    func = lambda x: x**4 + x* 2 + 5
+    func = lambda x: x**2 - 10
     print(Tareaundercurve(func, 2, 10))
     print(Sareaundercurve(func, 2, 10))
+    print(zero(func,-4,1))
 
 
 
